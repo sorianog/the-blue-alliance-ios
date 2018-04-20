@@ -14,6 +14,11 @@ class MatchViewController: ContainerViewController {
     public var match: Match!
     public var team: Team?
     
+    var event: Event? {
+        // TODO: Observe for changes... also make sure that when we init this once, we can reset it later
+        return Event.findOrFetch(in: persistentContainer.viewContext, with: match.eventKey!)
+    }
+    
     internal var matchInfoViewController: MatchInfoViewController!
     @IBOutlet internal var infoView: UIView!
     
@@ -23,11 +28,8 @@ class MatchViewController: ContainerViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationTitleLabel?.text = "\(match.friendlyMatchName())"
-        navigationDetailLabel?.text = "@ \(match.event!.friendlyNameWithYear)"
-        
         // Only show match breakdown if year is 2015 or onward
-        if Int(match.event!.year) >= 2015 {
+        if let event = event, event.year >= 2015 {
             viewControllers = [matchInfoViewController, matchBreakdownViewController]
             containerViews = [infoView, breakdownView]
         } else {
@@ -36,6 +38,18 @@ class MatchViewController: ContainerViewController {
             
             viewControllers = [matchInfoViewController]
             containerViews = [infoView]
+        }
+        
+        updateInterface()
+    }
+    
+    func updateInterface() {
+        navigationTitleLabel?.text = "\(match.friendlyMatchName())"
+        if let friendlyEventName = event?.friendlyNameWithYear {
+            navigationDetailLabel?.isHidden = false
+            navigationDetailLabel?.text = "@ \(friendlyEventName)"
+        } else {
+            navigationDetailLabel?.isHidden = true
         }
     }
     

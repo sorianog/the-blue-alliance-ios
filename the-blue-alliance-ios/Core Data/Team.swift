@@ -7,65 +7,50 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
 extension Team: Locatable, Managed {
-
-    var homeChampionship: [String: String] {
-        get {
-            return homeChampionshipDictionary as? Dictionary<String, String> ?? [:]
-        }
-        set {
-            homeChampionshipDictionary = newValue as NSDictionary
-        }
-    }
-    
-    var yearsParticipated: [Int] {
-        get {
-            let yearsArray = yearsParticipatedArray as? Array<Int> ?? []
-            return yearsArray.sorted().reversed()
-        }
-        set {
-            yearsParticipatedArray = newValue as NSArray
-        }
-    }
     
     var fallbackNickname: String {
         return "Team \(teamNumber)"
     }
     
+    static func teamNumberFrom(key: String) -> Int32 {
+        // TODO: Do a little work here eh
+        return Int32(key.prefixTrim("frc"))!
+    }
+    
     static func insert(with key: String, in context: NSManagedObjectContext) -> Team {
-        let predicate = NSPredicate(format: "key == %@", key)
         // Let's not *overwrite* shit we already have
-        if let team = findOrFetch(in: context, matching: predicate) {
+        if let team = findOrFetch(in: context, with: key) {
             return team
         }
-        return findOrCreate(in: context, matching: predicate) { (team) in
+        return findOrCreate(in: context, with: key) { (team) in
             // Required: key, name, teamNumber
             team.key = key
             
-            let teamNumber = Int32(key.prefixTrim("frc"))!
+            let teamNumber = teamNumberFrom(key: key)
             team.name = "Team \(teamNumber)"
             team.teamNumber = teamNumber
         }
     }
     
     static func insert(with model: TBATeam, in context: NSManagedObjectContext) -> Team {
-        let predicate = NSPredicate(format: "key == %@", model.key)
-        return findOrCreate(in: context, matching: predicate) { (team) in
+        return findOrCreate(in: context, with: model.key) { (team) in
             // Required: key, name, teamNumber, rookieYear
-            team.address = model.address
-            team.city = model.city
-            team.country = model.country
-            team.gmapsPlaceID = model.gmapsPlaceID
-            team.gmapsURL = model.gmapsURL
-            
-            if let homeChampionship = model.homeChampionship {
-                team.homeChampionship = homeChampionship
-            }
-            
             team.key = model.key
+            team.teamNumber = Int32(model.teamNumber)
+            team.nickname = model.nickname
+            team.name = model.name
+            
+            team.city = model.city
+            team.state = model.stateProv
+            team.country = model.country
+            team.address = model.address
+            team.postalCode = model.postalCode
+            team.gmapsPlaceID = model.gmapsPlaceId
+            team.gmapsURL = model.gmapsUrl
             
             if let lat = model.lat {
                 team.lat = NSNumber(value: lat)
@@ -73,25 +58,22 @@ extension Team: Locatable, Managed {
             if let lng = model.lng {
                 team.lng = NSNumber(value: lng)
             }
-            
             team.locationName = model.locationName
-            team.motto = model.motto
-            team.name = model.name
-            team.nickname = model.nickname
-            team.postalCode = model.postalCode
-            team.rookieYear = Int16(model.rookieYear)
-            team.state = model.state
-            team.teamNumber = Int32(model.teamNumber)
+
             team.website = model.website
+            team.rookieYear = Int16(model.rookieYear)
+            team.motto = model.motto
+            // TODO: Pretty sure this is broken further down in Alamo Fire... fix it
+            team.homeChampionship = model.homeChampionship as? [String: String]
         }
     }
     
-    static func fetchAllTeams(taskChanged: @escaping (URLSessionDataTask, [TBATeam]) -> (), completion: @escaping (Error?) -> ()) -> URLSessionDataTask {
-        return fetchAllTeams(taskChanged: taskChanged, page: 0, completion: completion)
+    static func fetchAllTeams(pageFinished: @escaping ([TBATeam]) -> (), completion: @escaping (Error?) -> ()) {
+        return fetchAllTeams(pageFinished: pageFinished, page: 0, completion: completion)
     }
     
-    static private func fetchAllTeams(taskChanged: @escaping (URLSessionDataTask, [TBATeam]) -> (), page: Int, completion: @escaping (Error?) -> ()) -> URLSessionDataTask {
-        return TBAKit.sharedKit.fetchTeams(page: page, completion: { (teams, error) in
+    static private func fetchAllTeams(pageFinished: @escaping ([TBATeam]) -> (), page: Int, completion: @escaping (Error?) -> ()) {
+        TeamAPI.getTeams(pageNum: page) { (teams, error) in
             if let error = error {
                 completion(error)
                 return
@@ -105,9 +87,10 @@ extension Team: Locatable, Managed {
             if teams.isEmpty {
                 completion(nil)
             } else {
-                taskChanged(self.fetchAllTeams(taskChanged: taskChanged, page: page + 1, completion: completion), teams)
+                pageFinished(teams)
+                self.fetchAllTeams(pageFinished: pageFinished, page: page + 1, completion: completion)
             }
-        })
+        }
     }
     
 }

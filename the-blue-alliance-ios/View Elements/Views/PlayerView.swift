@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import youtube_ios_player_helper
 import PureLayout
+import TBAClient
 
 class PlayerView: UIView {
     
@@ -55,7 +56,7 @@ class PlayerView: UIView {
         
         loadingActivityIndicator.startAnimating()
         
-        if media.type! == MediaType.youtubeVideo.rawValue {
+        if media.type! == TBAMedia.TBAType.youtube.rawValue {
             if let key = media.key {
                 youtubePlayerView.load(withVideoId: key)
             }

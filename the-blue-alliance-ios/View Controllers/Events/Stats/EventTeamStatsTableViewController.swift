@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import TBAKit
 import CoreData
 
 public enum EventTeamStatFilter: Int {

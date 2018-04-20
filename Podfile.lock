@@ -1,0 +1,59 @@
+PODS:
+  - Alamofire (4.5.1)
+  - PureLayout (3.0.2)
+  - React/Core (0.43.0):
+    - React/cxxreact
+    - Yoga (= 0.43.0.React)
+  - React/cxxreact (0.43.0):
+    - React/jschelpers
+  - React/jschelpers (0.43.0)
+  - React/RCTImage (0.43.0):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTNetwork (0.43.0):
+    - React/Core
+  - React/RCTText (0.43.0):
+    - React/Core
+  - React/RCTWebSocket (0.43.0):
+    - React/Core
+  - TBAClient (0.0.1):
+    - Alamofire (~> 4.5.0)
+  - Yoga (0.43.0.React)
+  - youtube-ios-player-helper (0.1.6)
+
+DEPENDENCIES:
+  - PureLayout
+  - React/Core (from `js/node_modules/react-native`)
+  - React/RCTImage (from `js/node_modules/react-native`)
+  - React/RCTNetwork (from `js/node_modules/react-native`)
+  - React/RCTText (from `js/node_modules/react-native`)
+  - React/RCTWebSocket (from `js/node_modules/react-native`)
+  - TBAClient (from `swagger-codegen`)
+  - Yoga (from `js/node_modules/react-native/ReactCommon/yoga`)
+  - youtube-ios-player-helper (~> 0.1.4)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Alamofire
+    - PureLayout
+    - youtube-ios-player-helper
+
+EXTERNAL SOURCES:
+  React:
+    :path: js/node_modules/react-native
+  TBAClient:
+    :path: swagger-codegen
+  Yoga:
+    :path: js/node_modules/react-native/ReactCommon/yoga
+
+SPEC CHECKSUMS:
+  Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
+  PureLayout: 4d550abe49a94f24c2808b9b95db9131685fe4cd
+  React: 8f52d52389ef8a271b049f81634343290f59a356
+  TBAClient: bc084a6d9251ac85e40525908586d58b8f0a53b2
+  Yoga: ee3dae4d89b27276f4be20241c2bab84f296b626
+  youtube-ios-player-helper: 21ab92db027c7ff86cb17a3843a3f6eafc8158d2
+
+PODFILE CHECKSUM: 3b5819c6d3f47e6f90824a968c8d3c5a75dea220
+
+COCOAPODS: 1.5.0

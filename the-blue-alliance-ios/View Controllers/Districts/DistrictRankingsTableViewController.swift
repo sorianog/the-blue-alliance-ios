@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TBAKit
 import UIKit
 import CoreData
 
@@ -130,7 +129,8 @@ class DistrictRankingsTableViewController: TBATableViewController {
                 
                 let localRankings = rankings?.flatMap({ (modelRanking) -> DistrictRanking? in
                     var backgroundTeam: Team?
-                    backgroundTeam = Team.findOrFetch(in: backgroundContext, matching: NSPredicate(format: "key == %@", modelRanking.teamKey))
+                    // TODO: This is really weird, why not findOrCreate instead of doing a find, then an insert
+                    backgroundTeam = Team.findOrFetch(in: backgroundContext, with: modelRanking.teamKey)
                     if backgroundTeam == nil {
                         backgroundTeam = Team.insert(with: modelRanking.teamKey, in: backgroundContext)
                     }

@@ -8,7 +8,6 @@
 
 import UIKit
 import CoreData
-import TBAKit
 
 class EventDistrictPointsViewController: ContainerViewController {
     public var event: Event!

@@ -8,9 +8,9 @@
 
 import Foundation
 import CoreData
-import TBAKit
 import UIKit
 import React
+import TBAClient
 
 class EventStatsViewController: TBAViewController {
     
@@ -85,7 +85,8 @@ class EventStatsViewController: TBAViewController {
     override func refresh() {
         removeNoDataView()
         
-        var request: URLSessionDataTask?
+        // TODO: Event insights are BUSTED - fix them
+        /*
         request = TBAKit.sharedKit.fetchEventInsights(key: event.key!, completion: { (insights, error) in
             if let error = error {
                 self.showErrorAlert(with: "Unable to refresh event stats - \(error.localizedDescription)")
@@ -103,6 +104,7 @@ class EventStatsViewController: TBAViewController {
             })
         })
         addRequest(request: request!)
+        */
     }
     
 }

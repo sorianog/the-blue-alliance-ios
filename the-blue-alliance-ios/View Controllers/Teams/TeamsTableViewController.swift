@@ -6,9 +6,10 @@
 //  Copyright © 2017 The Blue Alliance. All rights reserved.
 //
 
+import UIKit
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
 class TeamsTableViewController: TBATableViewController {
 
@@ -59,29 +60,27 @@ class TeamsTableViewController: TBATableViewController {
     }
     
     func refreshTeams() {
-        var request: URLSessionDataTask?
-        request = Team.fetchAllTeams(taskChanged: { (task, teams) in
-            self.addRequest(request: task)
-            
-            let previousRequest = request
-            request = task
-            
+        if isRefreshing {
+            return
+        }
+        isRefreshing = true
+        
+        Team.fetchAllTeams(pageFinished: { (teams) in
+            // TODO: Do we use this pattern of bulk inserting teamsotehr places? Move it
             self.persistentContainer?.performBackgroundTask({ (backgroundContext) in
                 teams.forEach({ (modelTeam) in
                     _ = Team.insert(with: modelTeam, in: backgroundContext)
                 })
                 
                 _ = backgroundContext.saveOrRollback()
-                self.removeRequest(request: previousRequest!)
             })
         }) { (error) in
-            self.removeRequest(request: request!)
+            self.isRefreshing = false
             
             if let error = error {
                 self.showErrorAlert(with: "Unable to refresh teams - \(error.localizedDescription)")
             }
         }
-        addRequest(request: request!)
     }
     
     func refreshEventTeams() {
@@ -89,8 +88,12 @@ class TeamsTableViewController: TBATableViewController {
             return
         }
         
-        var request: URLSessionDataTask?
-        request = TBAKit.sharedKit.fetchEventTeams(key: eventKey, completion: { (teams, error) in
+        if isRefreshing {
+            return
+        }
+        isRefreshing = true
+        
+        EventAPI.getEventTeams(eventKey: eventKey) { (teams, error) in
             if let error = error {
                 self.showErrorAlert(with: "Unable to teams events - \(error.localizedDescription)")
             }
@@ -106,10 +109,9 @@ class TeamsTableViewController: TBATableViewController {
                     self.showErrorAlert(with: "Unable to refresh teams - database error")
                 }
                 
-                self.removeRequest(request: request!)
+                self.isRefreshing = false
             })
-        })
-        addRequest(request: request!)
+        }
     }
     
     // MARK: UITableView Delegate

@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import TBAKit
 
 extension EventPoints: Managed {
     
@@ -17,7 +16,7 @@ extension EventPoints: Managed {
             fatalError("Need team key")
         }
         
-        var team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", teamKey))
+        var team = Team.findOrFetch(in: context, with: teamKey)
         if team == nil {
             team = Team.insert(with: teamKey, in: context)
         }

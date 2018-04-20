@@ -7,8 +7,8 @@
 //
 
 import UIKit
-import TBAKit
 import CoreData
+import TBAClient
 
 enum TeamInfoSection: Int {
     case title
@@ -47,8 +47,9 @@ class TeamInfoTableViewController: TBATableViewController {
     override func refresh() {
         removeNoDataView()
         
-        var request: URLSessionDataTask?
-        request = TBAKit.sharedKit.fetchTeam(key: team.key!, completion: { (modelTeam, error) in
+        isRefreshing = true
+        
+        TeamAPI.getTeam(teamKey: team.key!) { (modelTeam, error) in
             if let error = error {
                 self.showErrorAlert(with: "Unable to refresh team - \(error.localizedDescription)")
             }
@@ -62,10 +63,27 @@ class TeamInfoTableViewController: TBATableViewController {
                     self.showErrorAlert(with: "Unable to refresh team - database error")
                 }
                 
-                self.removeRequest(request: request!)
+                self.isRefreshing = false
             })
-        })
-        addRequest(request: request!)
+        }
+//        request = TBAKit.sharedKit.fetchTeam(key: team.key!, completion: { (modelTeam, error) in
+//            if let error = error {
+//                self.showErrorAlert(with: "Unable to refresh team - \(error.localizedDescription)")
+//            }
+//
+//            self.persistentContainer?.performBackgroundTask({ (backgroundContext) in
+//                if let modelTeam = modelTeam {
+//                    _ = Team.insert(with: modelTeam, in: backgroundContext)
+//                }
+//
+//                if !backgroundContext.saveOrRollback() {
+//                    self.showErrorAlert(with: "Unable to refresh team - database error")
+//                }
+//
+//                self.removeRequest(request: request!)
+//            })
+//        })
+//        addRequest(request: request!)
     }
     
     override func shouldNoDataRefresh() -> Bool {

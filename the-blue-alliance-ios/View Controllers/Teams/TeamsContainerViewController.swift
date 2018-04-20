@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import CoreData
-import TBAKit
 
 let TeamsEmbed = "TeamsEmbed"
 let TeamSegue = "TeamSegue"

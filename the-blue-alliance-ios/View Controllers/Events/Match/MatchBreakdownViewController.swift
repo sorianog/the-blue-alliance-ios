@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import React
-import TBAKit
 import CoreData
 
 class MatchBreakdownViewController: TBAViewController {

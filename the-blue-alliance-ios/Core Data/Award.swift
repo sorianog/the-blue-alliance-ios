@@ -8,24 +8,22 @@
 
 import Foundation
 import CoreData
-import TBAKit
+import TBAClient
 
 extension Award: Managed {
     
-    static func insert(with model: TBAAward, for event: Event, in context: NSManagedObjectContext) -> Award {
-        let predicate = NSPredicate(format: "awardType == %ld && year == %ld && event == %@", model.awardType, model.year, event)
+    static func insert(with model: TBAAward, in context: NSManagedObjectContext) -> Award {
+        let predicate = NSPredicate(format: "awardType == %ld && year == %ld && eventKey == %@", model.awardType, model.year, model.eventKey)
         return findOrCreate(in: context, matching: predicate) { (award) in
-            // Required: awardType, event, name, year
+            // Required: awardType, event, name, year, recipientList
             award.name = model.name
             award.awardType = Int16(model.awardType)
-            award.event = event
+            award.eventKey = model.eventKey
             award.year = Int16(model.year)
             
-            if let recipients = model.recipients {
-                award.recipients = Set(recipients.map({ (modelRecipient) -> AwardRecipient in
-                    return AwardRecipient.insert(with: modelRecipient, for: award, in: context)
-                })) as NSSet
-            }
+            award.recipients = Set(model.recipientList.map({ (modelAwardRecipient) -> AwardRecipient in
+                return AwardRecipient.insert(with: modelAwardRecipient, for: award, in: context)
+            })) as NSSet
         }
     }
 
@@ -38,12 +36,14 @@ extension AwardRecipient: Managed {
         var predicate: NSPredicate?
         var team: Team?
         if let awardee = model.awardee, let teamKey = model.teamKey {
+            // TODO: Use findOrCreate, instead of doing a fetch then create
             team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", teamKey))
             if team == nil {
                 team = Team.insert(with: teamKey, in: context)
             }
             predicate = NSPredicate(format: "awardee == %@ AND award == %@ AND team == %@", awardee, award, team!)
         } else if let teamKey = model.teamKey {
+            // TODO: Use findOrCreate, instead of doing a fetch then create
             team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", teamKey))
             if team == nil {
                 team = Team.insert(with: teamKey, in: context)

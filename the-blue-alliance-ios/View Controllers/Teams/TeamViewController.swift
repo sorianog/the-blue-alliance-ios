@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import TBAKit
+import TBAClient
 
 class TeamViewController: ContainerViewController {
     
@@ -59,7 +59,7 @@ class TeamViewController: ContainerViewController {
     func updateInterface() {
         navigationTitleLabel?.text = "Team \(team.teamNumber)"
         
-        if !team.yearsParticipated.isEmpty, let year = year {
+        if let yearsParticipated = team.yearsParticipated, !yearsParticipated.isEmpty, let year = year {
             navigationDetailLabel?.text = "▾ \(year)"
         } else {
             navigationDetailLabel?.text = "▾ ----"
@@ -67,13 +67,14 @@ class TeamViewController: ContainerViewController {
     }
     
     func refreshYearsParticipated() {
-        _ = TBAKit.sharedKit.fetchTeamYearsParticipated(key: team.key!, completion: { (years, error) in
+        TeamAPI.getTeamYearsParticipated(teamKey: team.key!) { (years, error) in
             if let error = error {
                 self.showErrorAlert(with: "Unable to fetch years participated - \(error.localizedDescription)")
                 return
             }
             
-            guard let years = years as? [Int] else {
+            // Don't overwrite anything we previously had stored for years participated if new array is empty
+            guard let years = years, !years.isEmpty else {
                 return
             }
             
@@ -81,17 +82,18 @@ class TeamViewController: ContainerViewController {
                 self.team.yearsParticipated = years
                 try? backgroundContext.save()
                 
-                if self.year == nil, !self.team.yearsParticipated.isEmpty {
-                    self.year = self.team.yearsParticipated.first
+                if let _ = self.year, let yearsParticipated = self.team.yearsParticipated, !yearsParticipated.isEmpty {
+                    self.year = yearsParticipated.first
                 }
             })
-        })
+
+        }
     }
     
     // MARK: - Navigation
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == SelectYearSegue, team.yearsParticipated.isEmpty {
+        if identifier == SelectYearSegue, let yearsParticipated = team.yearsParticipated, yearsParticipated.isEmpty {
             return false
         }
         return true

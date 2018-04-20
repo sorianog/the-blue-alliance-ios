@@ -7,16 +7,16 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
 extension District: Managed {
     
-    static func insert(with model: TBADistrict, in context: NSManagedObjectContext) -> District {
-        let predicate = NSPredicate(format: "key == %@", model.key)
-        return findOrCreate(in: context, matching: predicate, configure: { (district) in
+    static func insert(with model: TBADistrictList, in context: NSManagedObjectContext) -> District {
+        return findOrCreate(in: context, with: model.key, configure: { (district) in
+            // Required: key, name, year, abbreviation
             district.abbreviation = model.abbreviation
-            district.name = model.name
+            district.name = model.displayName
             district.key = model.key
             district.year = Int16(model.year)
         })

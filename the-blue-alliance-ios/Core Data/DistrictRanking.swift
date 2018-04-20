@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
 
 extension DistrictRanking: Managed {
@@ -26,12 +25,12 @@ extension DistrictRanking: Managed {
             }
             
             ranking.eventPoints = Set(model.eventPoints.flatMap({ (modelPoints) -> EventPoints? in
+                // TODO: Find or create here... instead of fetching then inserting
                 guard let eventKey = modelPoints.eventKey else {
                     return nil
                 }
                 
-                let eventPredicate = NSPredicate(format: "key == %@", eventKey)
-                guard let event = Event.findOrFetch(in: context, matching: eventPredicate) else {
+                guard let event = Event.findOrFetch(in: context, with: eventKey) else {
                     return nil
                 }
 

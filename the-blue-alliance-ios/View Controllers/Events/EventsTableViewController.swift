@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import TBAKit
 import CoreData
 
 class EventsTableViewController: TBATableViewController {

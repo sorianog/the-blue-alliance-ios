@@ -7,66 +7,27 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
-public enum MatchCompLevel: String {
-    case qualification = "qm"
-    case eightfinal = "ef"
-    case quarterfinal = "qf"
-    case semifinal = "sf"
-    case final = "f"
-    
-    var intVal: Int16 {
-        switch self {
-        case .qualification:
-            return 0
-        case .eightfinal:
-            return 1
-        case .quarterfinal:
-            return 2
-        case .semifinal:
-            return 3
-        case .final:
-            return 4
-        }
-    }
-}
+typealias Score = NSNumber
 
 extension Match: Managed {
-
-    var redBreakdown: [String: Any]? {
-        get {
-            return redBreakdownDictionary as? Dictionary<String, Any> ?? [:]
-        }
-        set {
-            redBreakdownDictionary = newValue as NSDictionary?
-        }
-    }
-    
-    var blueBreakdown: [String: Any]? {
-        get {
-            return blueBreakdownDictionary as? Dictionary<String, Any> ?? [:]
-        }
-        set {
-            blueBreakdownDictionary = newValue as NSDictionary?
-        }
-    }
-    
+        
     var compLevelString: String {
         guard let compLevel = compLevel else {
             return ""
         }
         switch compLevel {
-        case MatchCompLevel.qualification.rawValue:
+        case TBAMatch.TBACompLevel.qm.rawValue:
             return "Qualification"
-        case MatchCompLevel.eightfinal.rawValue:
+        case TBAMatch.TBACompLevel.ef.rawValue:
             return "Octofinal"
-        case MatchCompLevel.quarterfinal.rawValue:
+        case TBAMatch.TBACompLevel.qf.rawValue:
             return "Quarterfinal"
-        case MatchCompLevel.semifinal.rawValue:
+        case TBAMatch.TBACompLevel.sf.rawValue:
             return "Semifinal"
-        case MatchCompLevel.final.rawValue:
+        case TBAMatch.TBACompLevel.f.rawValue:
             return "Finals"
         default:
             return ""
@@ -78,15 +39,15 @@ extension Match: Managed {
             return ""
         }
         switch compLevel {
-        case MatchCompLevel.qualification.rawValue:
+        case TBAMatch.TBACompLevel.qm.rawValue:
             return "Qual"
-        case MatchCompLevel.eightfinal.rawValue:
+        case TBAMatch.TBACompLevel.ef.rawValue:
             return "Octofinal"
-        case MatchCompLevel.quarterfinal.rawValue:
+        case TBAMatch.TBACompLevel.qf.rawValue:
             return "Quarter"
-        case MatchCompLevel.semifinal.rawValue:
+        case TBAMatch.TBACompLevel.sf.rawValue:
             return "Semi"
-        case MatchCompLevel.final.rawValue:
+        case TBAMatch.TBACompLevel.f.rawValue:
             return "Final"
         default:
             return ""
@@ -106,44 +67,32 @@ extension Match: Managed {
     }
     
     static func insert(with model: TBAMatch, for event: Event, in context: NSManagedObjectContext) -> Match {
-        let predicate = NSPredicate(format: "key == %@", model.key)
-        return findOrCreate(in: context, matching: predicate) { (match) in
+        return findOrCreate(in: context, with: model.key) { (match) in
             // Required: compLevel, eventKey, key, matchNumber, setNumber
             match.key = model.key
-            match.compLevel = model.compLevel
-            
-            let compLevelStruct = MatchCompLevel(rawValue: match.compLevel!)
-            match.compLevelInt = compLevelStruct!.intVal
-            
+            match.compLevel = model.compLevel.rawValue
+
             match.setNumber = Int16(model.setNumber)
             match.matchNumber = Int16(model.matchNumber)
             
-            if let redAlliance = model.redAlliance {
-                match.redAlliance = Set(redAlliance.teams.map({ (teamKey) -> Team in
-                    var team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", teamKey))
-                    if team == nil {
-                        team = Team.insert(with: teamKey, in: context)
-                    }
-                    return team!
-                })) as NSSet
-                match.redScore = NSNumber(value: redAlliance.score)
-                // TODO: add surrogate teams
+            if let redAlliance = model.alliances?.red {
+                match.redTeamKeys = redAlliance.teamKeys
+                // TODO: Think about this... beacuse this should be a UInt?
+                match.redScore = Score(value: redAlliance.score)
+                match.redSurrogateTeamKeys = redAlliance.surrogateTeamKeys
+                match.redDQTeamKeys = redAlliance.dqTeamKeys
             }
             
-            if let blueAlliance = model.blueAlliance {
-                match.blueAlliance = Set(blueAlliance.teams.map({ (teamKey) -> Team in
-                    var team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", teamKey))
-                    if team == nil {
-                        team = Team.insert(with: teamKey, in: context)
-                    }
-                    return team!
-                })) as NSSet
-                match.blueScore = NSNumber(value: blueAlliance.score)
-                // TODO: add surrogate teams
+            if let blueAlliance = model.alliances?.blue {
+                match.blueTeamKeys = blueAlliance.teamKeys
+                // TODO: Think about this... beacuse this should be a UInt?
+                match.blueScore = Score(value: blueAlliance.score)
+                match.blueSurrogateTeamKeys = blueAlliance.surrogateTeamKeys
+                match.blueDQTeamKeys = blueAlliance.dqTeamKeys
             }
             
             match.winningAlliance = model.winningAlliance
-            match.event = event
+            match.eventKey = model.eventKey
             if let time = model.time {
                 match.time = NSNumber(value: time)
             }
@@ -157,12 +106,28 @@ extension Match: Managed {
                 match.postResultTime = NSNumber(value: postResultTime)
             }
             
-            match.redBreakdown = model.redBreakdown
-            match.blueBreakdown = model.blueBreakdown
-            
+            if let breakdown = model.scoreBreakdown as? [String: Any] {
+                if let blueBreakdown = breakdown["blue"] as? [String: Any] {
+                    match.blueBreakdown = blueBreakdown
+                }
+                if let redBreakdown = breakdown["red"] as? [String: Any] {
+                    match.redBreakdown = redBreakdown
+                }
+                
+                // Add coopertition and coopertition points to breakdown in 2015
+                if let coopertition = breakdown["coopertition"] as? String {
+                    match.blueBreakdown?["coopertition"] = coopertition
+                    match.redBreakdown?["coopertition"] = coopertition
+                }
+                if let coopertitionPoints = breakdown["coopertition_points"] as? Int {
+                    match.blueBreakdown?["coopertition_points"] = coopertitionPoints
+                    match.redBreakdown?["coopertition_points"] = coopertitionPoints
+                }
+            }
+
             if let videos = model.videos {
-                match.videos = Set(videos.map({ (modelVideo) -> Media in
-                    return Media.insert(with: modelVideo, for: Int(event.year), in: context)
+                match.videos = Set(videos.map({ (modelVideo) -> MatchVideo in
+                    return MatchVideo.insert(with: modelVideo, in: context)
                 })) as NSSet
             }
         }
@@ -176,12 +141,12 @@ extension Match: Managed {
         let matchName = shortCompLevelString
         
         switch compLevel {
-        case MatchCompLevel.qualification.rawValue:
+        case TBAMatch.TBACompLevel.qm.rawValue:
             return "\(matchName) \(matchNumber)"
-        case MatchCompLevel.eightfinal.rawValue,
-             MatchCompLevel.quarterfinal.rawValue,
-             MatchCompLevel.semifinal.rawValue,
-             MatchCompLevel.final.rawValue:
+        case TBAMatch.TBACompLevel.ef.rawValue,
+             TBAMatch.TBACompLevel.qf.rawValue,
+             TBAMatch.TBACompLevel.sf.rawValue,
+             TBAMatch.TBACompLevel.f.rawValue:
             return "\(matchName) \(setNumber) - \(matchNumber)"
 
         default:

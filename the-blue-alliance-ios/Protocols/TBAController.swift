@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import CoreData
-import TBAKit
 import PureLayout
 
 protocol Container {
@@ -47,11 +46,13 @@ extension Container {
         switchedToIndex(switchedIndex)
     }
 
+    /*
     func cancelRefreshes() {
         viewControllers.forEach {
             $0.cancelRefresh()
         }
     }
+    */
 
 }
 
@@ -201,11 +202,11 @@ class ContainerViewController: UIViewController, Container, Persistable, Alertab
         
         // TODO: Consider... if a view is presented over top of the current view but no action is taken
         // We don't want to cancel refreshes in that situation
-        cancelRefreshes()
+        // cancelRefreshes()
     }
     
     @IBAction func segmentedControlValueChanged(sender: Any) {
-        cancelRefreshes()
+        // cancelRefreshes()
         updateSegmentedControlViews()
     }
     
@@ -322,17 +323,22 @@ protocol Refreshable: class {
 
 extension Refreshable {
     
+    // Keep isRefreshing updated manually in view controllers
+    // TODO: Find a way to dig down in to AlamoFire/TBAClient to get requests, update isRefreshing manually
     var isRefreshing: Bool {
-        // We're not refreshing if our requests array is empty
-        return !requests.isEmpty
+        didSet {
+            updateRefresh()
+        }
     }
-    
+
     func shouldRefresh() -> Bool {
         return shouldNoDataRefresh() && !isRefreshing
     }
-    
+
     // TODO: Add a method to add an observer on a single core data object for changes
     
+    // TODO: These are all broken... figure out how Alamofire works and fix them
+    /*
     func cancelRefresh() {
         if requests.isEmpty {
             return
@@ -372,7 +378,8 @@ extension Refreshable {
             }
         }
     }
-    
+    */
+
     private func updateRefresh() {
         DispatchQueue.main.async {
             if self.isRefreshing {

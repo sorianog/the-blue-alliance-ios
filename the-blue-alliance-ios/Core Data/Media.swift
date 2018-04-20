@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
+/*
 public enum MediaType: String {
     case youtubeVideo = "youtube"
     case cdPhotoThread = "cdphotothread"
@@ -47,35 +48,27 @@ public enum MediaType: String {
     // TODO: profile_urls
 
 }
+*/
 
 extension Media: Managed {
     
-    var details: [String: Any]? {
-        get {
-            return detailsDictionary as? Dictionary<String, Any> ?? [:]
-        }
-        set {
-            detailsDictionary = newValue as NSDictionary?
-        }
-    }
-    
     static func insert(with model: TBAMedia, for year: Int, in context: NSManagedObjectContext) -> Media {
-        var mediaPredicate: NSPredicate?
-        if let key = model.key {
-            mediaPredicate = NSPredicate(format: "key == %@ AND type == %@", key, model.type)
-        } else if let foreignKey = model.foreignKey {
-            mediaPredicate = NSPredicate(format: "foreignKey == %@ AND type == %@", foreignKey, model.type)
-        }
-        guard let predicate = mediaPredicate else {
-            fatalError("No way to filter media")
+        // Some media has a key/type (TODO: Find media that has a key/type... thought old vods but maybe not?)
+        // However, some media has a foreignKey/type (grabcad, imgur, cdphotothread, instagram-image, etc.)
+        var predicate = NSPredicate(format: "key == %@ AND type == %@", model.key, model.type.rawValue)
+        if let foreignKey = model.foreignKey {
+            predicate = NSPredicate(format: "foreignKey == %@ AND type == %@", foreignKey, model.type.rawValue)
         }
         return findOrCreate(in: context, matching: predicate) { (media) in
-            // Required: type, year
+            // Required: key, type
+            // TODO: Pretty sure this is HELLA wrong... I think `key` is for sure not required on Media
+            // File an issue or something
             media.key = model.key
-            media.type = model.type
-            media.year = Int16(year)
+            media.type = model.type.rawValue
             media.foreignKey = model.foreignKey
-            media.details = model.details
+            // TODO: Why do we have year? Document....
+            media.year = Int16(year)
+            media.details = model.details as? [String: Any]
             media.preferred = model.preferred ?? false
         }
     }
@@ -83,13 +76,13 @@ extension Media: Managed {
     // https://github.com/the-blue-alliance/the-blue-alliance/blob/master/models/media.py#L92
     
     public var viewImageURL: URL? {
-        if type! == MediaType.cdPhotoThread.rawValue {
+        if type! == TBAMedia.TBAType.cdphotothread.rawValue {
             return cdphotothreadImageURL
-        } else if type! == MediaType.imgur.rawValue {
+        } else if type! == TBAMedia.TBAType.imgur.rawValue {
             return imgurURL
-        } else if type! == MediaType.grabcad.rawValue {
+        } else if type! == TBAMedia.TBAType.grabcad.rawValue {
             return grabcadURL
-        } else if type! == MediaType.instagramImage.rawValue {
+        } else if type! == TBAMedia.TBAType.instagramImage.rawValue {
             return instagramURL
         } else {
             return nil
@@ -98,13 +91,13 @@ extension Media: Managed {
     
     public var imageDirectURL: URL? {
         // Largest image that isn't max resolution (which can be arbitrarily huge)
-        if type! == MediaType.cdPhotoThread.rawValue {
+        if type! == TBAMedia.TBAType.cdphotothread.rawValue {
             return cdphotothreadImageURLMed
-        } else if type! == MediaType.imgur.rawValue {
+        } else if type! == TBAMedia.TBAType.imgur.rawValue {
             return imgurDirectURL
-        } else if type! == MediaType.grabcad.rawValue {
+        } else if type! == TBAMedia.TBAType.grabcad.rawValue {
             return grabcadDirectURL
-        } else if type! == MediaType.instagramImage.rawValue {
+        } else if type! == TBAMedia.TBAType.instagramImage.rawValue {
             return instagramDirectURL
         } else {
             return nil

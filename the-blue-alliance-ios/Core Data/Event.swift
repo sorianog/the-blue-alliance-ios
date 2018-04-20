@@ -7,9 +7,10 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
+import TBAClient
 
+// TODO: Add these to Swagger so they get generated on our models
 public enum EventType: Int {
     case regional = 0
     case district = 1
@@ -24,58 +25,39 @@ public enum EventType: Int {
 }
 
 extension Event: Locatable, Managed {
-
-    var divisionKeys: [String] {
-        get {
-            return divisionKeysArray as? Array<String> ?? []
-        }
-        set {
-            divisionKeysArray = newValue as NSArray
-        }
-    }
-    
-    var insights: [String: Any]? {
-        get {
-            return insightsDictionary as? Dictionary<String, Any> ?? [:]
-        }
-        set {
-            insightsDictionary = newValue as NSDictionary?
-        }
-    }
     
     static func insert(with model: TBAEvent, in context: NSManagedObjectContext) -> Event {
-        let predicate = NSPredicate(format: "key == %@", model.key)
-        return findOrCreate(in: context, matching: predicate) { (event) in
-            // Required: endDate, eventCode, eventType, key, name, startDate, year
-            event.address = model.address
-            event.city = model.city
-            event.country = model.country
-            
+        return findOrCreate(in: context, with: model.key) { (event) in
+            // Required: key, name, eventCode, eventType, startDate, endDate, year, eventTypeString
+            event.key = model.key
+            event.name = model.name
+            event.eventCode = model.eventCode
+            event.eventType = Int16(model.eventType)
+
             if let district = model.district {
                 event.district = District.insert(with: district, in: context)
             }
             
-            // TODO: Let's see if we can get a background task or something to go through and form relationships...
-            if !model.divisionKeys.isEmpty {
-                event.divisionKeys = model.divisionKeys
+            event.city = model.city
+            event.state = model.stateProv
+            event.country = model.country
+            
+            // TODO: Make sure that these dates are in the format we need...
+            event.startDate = model.startDate
+            event.endDate = model.endDate
+            
+            event.year = Int16(model.year)
+            event.shortName = model.shortName
+            event.eventTypeString = model.eventTypeString
+
+            if let week = model.week {
+                event.week = NSNumber(integerLiteral: week)
             }
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-            
-            // TODO: Better way to handle this?
-            if let endDate = dateFormatter.date(from: model.endDate) {
-                event.endDate = Date(timeIntervalSince1970: endDate.timeIntervalSince1970)
-            }
-            
-            event.eventCode = model.eventCode
-            event.eventType = Int16(model.eventType)
-            event.eventTypeName = model.eventTypeName
-            event.firstEventID = model.firstEventID
-            event.gmapsPlaceID = model.gmapsPlaceID
-            event.gmapsURL = model.gmapsURL
-            
-            event.key = model.key
+
+            event.address = model.address
+            event.postalCode = model.postalCode
+            event.gmapsPlaceID = model.gmapsPlaceId
+            event.gmapsURL = model.gmapsUrl
             
             if let lat = model.lat {
                 event.lat = NSNumber(value: lat)
@@ -83,41 +65,28 @@ extension Event: Locatable, Managed {
             if let lng = model.lng {
                 event.lng = NSNumber(value: lng)
             }
-            
+
             event.locationName = model.locationName
-            event.name = model.name
-            
-            // TODO: Can we convert this to a relationship?
-            event.parentEventKey = model.parentEventKey
-            if let playoffType = model.playoffType {
-                event.playoffType = Int16(playoffType)
-            }
-            event.playoffTypeString = model.playoffTypeString
-            
-            event.postalCode = model.postalCode
-            event.shortName = model.shortName
-            
-            if let startDate = dateFormatter.date(from: model.startDate) {
-                event.startDate = Date(timeIntervalSince1970: startDate.timeIntervalSince1970)
-            }
-            
-            event.state = model.state
             event.timezone = model.timezone
-            
+            event.website = model.website
+
+            event.firstEventID = model.firstEventId
+            event.firstEventCode = model.firstEventCode
+
             if let webcasts = model.webcasts {
                 event.webcasts = Set(webcasts.map({ (modelWebcast) -> Webcast in
                     return Webcast.insert(with: modelWebcast, for: event, in: context)
                 })) as NSSet
             }
 
-            event.website = model.website
-            
-            if let week = model.week {
-                event.week = NSNumber(integerLiteral: week)
+            event.divisionKeys = model.divisionKeys
+            event.parentEventKey = model.parentEventKey
+            if let playoffType = model.playoffType {
+                event.playoffType = Int16(playoffType)
             }
+            event.playoffTypeString = model.playoffTypeString
             
-            event.year = Int16(model.year)
-            
+            // TODO: Consider if we even need this anymore?
             event.hybridType = event.calculateHybridType()
         }
     }
@@ -228,7 +197,7 @@ extension Event: Locatable, Managed {
     
     public var friendlyNameWithYear: String {
         let nameString = shortName ?? name
-        return "\(String(year)) \(nameString ?? "Unnamed") \(eventTypeName ?? "Event")"
+        return "\(String(year)) \(nameString ?? "Unnamed") \(eventTypeString ?? "Event")"
     }
     
     public var isChampionship: Bool {

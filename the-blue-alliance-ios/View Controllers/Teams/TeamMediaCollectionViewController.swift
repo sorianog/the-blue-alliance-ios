@@ -7,14 +7,15 @@
 //
 
 import UIKit
-import TBAKit
 import CoreData
+import TBAClient
 
 class TeamMediaCollectionViewController: TBACollectionViewController {
 
     internal var year: Int? {
         didSet {
-            cancelRefresh()
+            // TODO: Find a way to cancel the old request we're doing here...
+            // cancelRefresh()
             updateDataSource()
             
             if shouldNoDataRefresh() {
@@ -49,10 +50,15 @@ class TeamMediaCollectionViewController: TBACollectionViewController {
             return
         }
         
+        // TODO: See if we can move this pattern to a shared something
+        if isRefreshing {
+            return
+        }
+        isRefreshing = true
+
         removeNoDataView()
         
-        var request: URLSessionDataTask?
-        request = TBAKit.sharedKit.fetchTeamMedia(key: team.key!, year: year, completion: { (media, error) in
+        TeamAPI.getTeamMediaByYear(teamKey: team.key!, year: year) { (media, error) in
             if let error = error {
                 self.showErrorAlert(with: "Unable to refresh team media - \(error.localizedDescription)")
             }
@@ -80,10 +86,9 @@ class TeamMediaCollectionViewController: TBACollectionViewController {
                 if !backgroundContext.saveOrRollback() {
                     self.showErrorAlert(with: "Unable to refresh team media - database error")
                 }
-                self.removeRequest(request: request!)
+                self.isRefreshing = false
             })
-        })
-        addRequest(request: request!)
+        }
     }
     
     override func shouldNoDataRefresh() -> Bool {
@@ -213,7 +218,7 @@ extension TeamMediaCollectionViewController: CollectionViewDataSourceDelegate {
     
     func configure(_ cell: UICollectionViewCell, for object: Media, at indexPath: IndexPath) {
         var mediaView: UIView?
-        if object.type == MediaType.youtubeVideo.rawValue {
+        if object.type == TBAMedia.TBAType.youtube.rawValue {
             mediaView = playerViewForMedia(object)
         } else {
             mediaView = mediaViewForMedia(object)

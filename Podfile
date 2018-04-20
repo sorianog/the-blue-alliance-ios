@@ -3,7 +3,7 @@ use_frameworks!
 
 target 'the-blue-alliance-ios' do
 
-  pod 'TBAKit'
+  pod 'TBAClient', :path => 'swagger-codegen'
   
   pod 'React', :path => 'js/node_modules/react-native', :subspecs => [
     'Core',

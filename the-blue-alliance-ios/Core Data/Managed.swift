@@ -17,6 +17,11 @@ extension Managed where Self: NSManagedObject {
     
     public static var entityName: String { return entity.name!  }
     
+    // TODO: Change this to create some "stub" model, and then fetch in background stuff we actually want
+    public static func findOrCreate(in context: NSManagedObjectContext, with key: String, configure: (Self) -> ()) -> Self {
+        return findOrCreate(in: context, matching: NSPredicate(format: "key == %@", key), configure: configure)
+    }
+    
     public static func findOrCreate(in context: NSManagedObjectContext, matching predicate: NSPredicate, configure: (Self) -> ()) -> Self {
         var object = findOrFetch(in: context, matching: predicate)
         if object == nil {
@@ -26,6 +31,9 @@ extension Managed where Self: NSManagedObject {
         return object!
     }
     
+    public static func findOrFetch(in context: NSManagedObjectContext, with key: String) -> Self? {
+        return findOrFetch(in: context, matching: NSPredicate(format: "key == %@", key))
+    }
     
     public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate) -> Self? {
         guard let object = materializedObject(in: context, matching: predicate) else {

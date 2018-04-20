@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
 
 extension EventRanking: Managed {

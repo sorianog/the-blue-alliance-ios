@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import TBAClient
 
 class MatchTableViewCell: UITableViewCell {
     static let reuseIdentifier = "MatchCell"
@@ -66,6 +67,7 @@ class MatchTableViewCell: UITableViewCell {
         }
     }
     
+    // TODO: This method has TERRIBLE threading issues...
     private func configureCell() {
         matchNumberLabel.text = match?.friendlyMatchName()
         playIconImageView.isHidden = (match?.videos?.count == 0)
@@ -77,8 +79,8 @@ class MatchTableViewCell: UITableViewCell {
             view.removeFromSuperview()
         }
         
-        for team in (match?.redAlliance?.reversed() ?? []) as! [Team] {
-            let teamLabel = MatchTableViewCell.label(for: team, baseTeam: self.team)
+        for teamKey in (match?.redTeamKeys?.reversed() ?? []) {
+            let teamLabel = MatchTableViewCell.label(for: teamKey, baseTeamKey: team?.key)
             redStackView.insertArrangedSubview(teamLabel, at: 0)
         }
         redScoreLabel.text = match?.redScore?.stringValue
@@ -90,8 +92,8 @@ class MatchTableViewCell: UITableViewCell {
             view.removeFromSuperview()
         }
         
-        for team in (match?.blueAlliance?.reversed() ?? []) as! [Team] {
-            let teamLabel = MatchTableViewCell.label(for: team, baseTeam: self.team)
+        for teamKey in (match?.blueTeamKeys?.reversed() ?? []) {
+            let teamLabel = MatchTableViewCell.label(for: teamKey, baseTeamKey: team?.key)
             blueStackView.insertArrangedSubview(teamLabel, at: 0)
         }
         blueScoreLabel.text = match?.blueScore?.stringValue
@@ -108,11 +110,10 @@ class MatchTableViewCell: UITableViewCell {
             timeLabel.isHidden = true
         }
 
+        let matchYearString = match?.eventKey!.prefix(4)
+        
         // Everyone is a winner in 2015 ╮ (. ❛ ᴗ ❛.) ╭
-        if let compLevelString = match?.compLevel,
-            let compLevel = MatchCompLevel(rawValue: compLevelString),
-            match?.event?.year == Int16(2015),
-            compLevel != MatchCompLevel.final {
+        if matchYearString == "2015", match!.compLevel != TBAMatch.TBACompLevel.f.rawValue {
             redContainerView.layer.borderWidth = 0.0
             blueContainerView.layer.borderWidth = 0.0
             
@@ -139,11 +140,11 @@ class MatchTableViewCell: UITableViewCell {
         }
     }
     
-    public static func label(for team: Team, baseTeam: Team?) -> UILabel {
+    public static func label(for teamKey: String, baseTeamKey: String?) -> UILabel {
         let label = UILabel()
-        label.text = "\(team.teamNumber)"
+        label.text = "\(Team.teamNumberFrom(key: teamKey))"
         var font: UIFont = .systemFont(ofSize: 14)
-        if team.teamNumber == baseTeam?.teamNumber {
+        if teamKey == baseTeamKey {
             font = .boldSystemFont(ofSize: 14)
         }
         label.font = font

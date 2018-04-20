@@ -7,13 +7,12 @@
 //
 
 import Foundation
-import TBAKit
 import CoreData
 
 extension EventTeamStat: Managed {
     
     static func insert(with model: TBAStat, for event: Event, in context: NSManagedObjectContext) -> EventTeamStat {
-        var team = Team.findOrFetch(in: context, matching: NSPredicate(format: "key == %@", model.teamKey))
+        var team = Team.findOrFetch(in: context, with: model.teamKey)
         if team == nil {
             team = Team.insert(with: model.teamKey, in: context)
         }
