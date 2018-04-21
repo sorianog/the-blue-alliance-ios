@@ -10,45 +10,27 @@ import Foundation
 import CoreData
 import TBAClient
 
-/*
-public enum MediaType: String {
-    case youtubeVideo = "youtube"
-    case cdPhotoThread = "cdphotothread"
-    case imgur = "imgur"
-    case facebookProfile = "facebook-profile"
-    case youtubeChannel = "youtube-channel"
-    case twitterProfile = "twitter-profile"
-    case githubProfile = "github-profile"
-    case instagramProfile = "instagram-profile"
-    case periscopeProfile = "periscope-profile"
-    case grabcad = "grabcad"
-    case pinterestProfile = "pinterest-profile"
-    case snapchatProfile = "snapchat-profile"
-    case twitchChannel = "twitch-channel"
-    case instagramImage = "instagram-image"
+extension TBAMedia {
     
-    static var imageTypes: [String] {
-        return [MediaType.cdPhotoThread.rawValue,
-                MediaType.imgur.rawValue,
-                MediaType.instagramImage.rawValue]
+    static var imageTypes: [TBAMedia.TBAType] {
+        return [TBAMedia.TBAType.cdphotothread,
+                TBAMedia.TBAType.imgur,
+                TBAMedia.TBAType.instagramImage]
     }
     
-    static var socialTypes: [String] {
-        return [MediaType.facebookProfile.rawValue,
-                MediaType.twitterProfile.rawValue,
-                MediaType.youtubeChannel.rawValue,
-                MediaType.githubProfile.rawValue,
-                MediaType.instagramProfile.rawValue,
-                MediaType.periscopeProfile.rawValue,
-                MediaType.pinterestProfile.rawValue,
-                MediaType.snapchatProfile.rawValue,
-                MediaType.twitchChannel.rawValue]
+    static var socialTypes: [TBAMedia.TBAType] {
+        return [TBAMedia.TBAType.facebookProfile,
+                TBAMedia.TBAType.twitterProfile,
+                TBAMedia.TBAType.youtubeChannel,
+                TBAMedia.TBAType.githubProfile,
+                TBAMedia.TBAType.instagramProfile,
+                TBAMedia.TBAType.periscopeProfile,
+                TBAMedia.TBAType.snapchatProfile,
+                TBAMedia.TBAType.twitchChannel]
     }
     
     // TODO: profile_urls
-
 }
-*/
 
 extension Media: Managed {
     

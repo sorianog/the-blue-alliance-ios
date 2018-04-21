@@ -46,11 +46,11 @@ open class TBATeam: Codable {
     /** Team&#39;s motto as provided by FIRST. */
     public var motto: String?
     /** Location of the team&#39;s home championship each year as a key-value pair. The year (as a string) is the key, and the city is the value. */
-    public var homeChampionship: Any?
+    public var homeChampionship: [String: String]?
 
 
     
-    public init(key: String, teamNumber: Int, nickname: String?, name: String, city: String?, stateProv: String?, country: String?, address: String?, postalCode: String?, gmapsPlaceId: String?, gmapsUrl: String?, lat: Double?, lng: Double?, locationName: String?, website: String?, rookieYear: Int, motto: String?, homeChampionship: Any?) {
+    public init(key: String, teamNumber: Int, nickname: String?, name: String, city: String?, stateProv: String?, country: String?, address: String?, postalCode: String?, gmapsPlaceId: String?, gmapsUrl: String?, lat: Double?, lng: Double?, locationName: String?, website: String?, rookieYear: Int, motto: String?, homeChampionship: [String: String]?) {
         self.key = key
         self.teamNumber = teamNumber
         self.nickname = nickname
@@ -95,7 +95,7 @@ open class TBATeam: Codable {
         try container.encodeIfPresent(website, forKey: "website")
         try container.encode(rookieYear, forKey: "rookie_year")
         try container.encodeIfPresent(motto, forKey: "motto")
-        // try container.encodeIfPresent(homeChampionship, forKey: "home_championship")
+        try container.encodeIfPresent(homeChampionship, forKey: "home_championship")
     }
 
     // Decodable protocol methods
@@ -120,7 +120,7 @@ open class TBATeam: Codable {
         website = try container.decodeIfPresent(String.self, forKey: "website")
         rookieYear = try container.decode(Int.self, forKey: "rookie_year")
         motto = try container.decodeIfPresent(String.self, forKey: "motto")
-        // homeChampionship = try container.decodeIfPresent(Any.self, forKey: "home_championship")
+        homeChampionship = try container.decodeIfPresent([String: String].self, forKey: "home_championship")
     }
 }
 

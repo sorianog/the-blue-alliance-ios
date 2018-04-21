@@ -591,11 +591,13 @@ open class EventAPI {
      - parameter ifModifiedSince: (header) Value of the &#x60;Last-Modified&#x60; header in the most recently cached response by the client. (optional)
      - parameter completion: completion handler to receive the data and the error objects
      */
+    /*
     open class func getEventInsights(eventKey: String, ifModifiedSince: String? = nil, completion: @escaping ((_ data: Any?,_ error: Error?) -> Void)) {
         getEventInsightsWithRequestBuilder(eventKey: eventKey, ifModifiedSince: ifModifiedSince).execute { (response, error) -> Void in
             completion(response?.body, error);
         }
     }
+    */
 
     /**
      - GET /event/{event_key}/insights
@@ -612,6 +614,7 @@ open class EventAPI {
 
      - returns: RequestBuilder<Any> 
      */
+    /*
     open class func getEventInsightsWithRequestBuilder(eventKey: String, ifModifiedSince: String? = nil) -> RequestBuilder<Any> {
         var path = "/event/{event_key}/insights"
         path = path.replacingOccurrences(of: "{event_key}", with: "\(eventKey)", options: .literal, range: nil)
@@ -629,7 +632,8 @@ open class EventAPI {
 
         return requestBuilder.init(method: "GET", URLString: (url?.string ?? URLString), parameters: parameters, isBody: false, headers: headerParameters)
     }
-    
+    */
+
     /**
 
      - parameter eventKey: (path) TBA Event Key, eg &#x60;2016nytr&#x60; 
