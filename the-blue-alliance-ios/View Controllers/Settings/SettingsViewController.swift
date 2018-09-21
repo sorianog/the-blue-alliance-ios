@@ -185,7 +185,8 @@ class SettingsViewController: UITableViewController, Persistable {
     }
 
     internal func deleteAppData() {
-        persistentContainer.deleteAllEntities()
+        persistentContainer.viewContext.deleteAllObjects()
+        persistentContainer.viewContext.saveContext()
     }
 
 }

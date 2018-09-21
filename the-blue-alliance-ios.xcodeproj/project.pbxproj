@@ -131,7 +131,6 @@
 		92BB8B62214F16710035AF28 /* SettingsViewController_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BB8B61214F16710035AF28 /* SettingsViewController_Tests.swift */; };
 		92BB8B64214F17440035AF28 /* URLOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BB8B63214F17440035AF28 /* URLOpener.swift */; };
 		92BB8B66214F177B0035AF28 /* UIApplication+URLOpener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BB8B65214F177B0035AF28 /* UIApplication+URLOpener.swift */; };
-		92C72C2421502F7300534AC3 /* NSPersistentContainer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C72C2321502F7300534AC3 /* NSPersistentContainer+Extension.swift */; };
 		92C9BD3120968FAC007FB9C8 /* Favorite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C9BD3020968FAC007FB9C8 /* Favorite.swift */; };
 		92C9BD3320968FB3007FB9C8 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C9BD3220968FB3007FB9C8 /* Subscription.swift */; };
 		92C9BD352096907E007FB9C8 /* Stateful.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C9BD342096907E007FB9C8 /* Stateful.swift */; };
@@ -311,7 +310,6 @@
 		92BB8B61214F16710035AF28 /* SettingsViewController_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController_Tests.swift; sourceTree = "<group>"; };
 		92BB8B63214F17440035AF28 /* URLOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLOpener.swift; sourceTree = "<group>"; };
 		92BB8B65214F177B0035AF28 /* UIApplication+URLOpener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIApplication+URLOpener.swift"; path = "Extensions/UIApplication+URLOpener.swift"; sourceTree = "<group>"; };
-		92C72C2321502F7300534AC3 /* NSPersistentContainer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSPersistentContainer+Extension.swift"; sourceTree = "<group>"; };
 		92C9BD3020968FAC007FB9C8 /* Favorite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Favorite.swift; sourceTree = "<group>"; };
 		92C9BD3220968FB3007FB9C8 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		92C9BD342096907E007FB9C8 /* Stateful.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stateful.swift; sourceTree = "<group>"; };
@@ -528,7 +526,6 @@
 			isa = PBXGroup;
 			children = (
 				924F8C861EC8C71C00F7447A /* NSManagedObjectContext+Extension.swift */,
-				92C72C2321502F7300534AC3 /* NSPersistentContainer+Extension.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -1352,7 +1349,6 @@
 				92BB8B64214F17440035AF28 /* URLOpener.swift in Sources */,
 				1405237F1ED3524C0072FB91 /* Match.swift in Sources */,
 				9272924D1EE4A0FC0027CE7C /* EventStatsViewController.swift in Sources */,
-				92C72C2421502F7300534AC3 /* NSPersistentContainer+Extension.swift in Sources */,
 				9223AC831EE7003C00F54F93 /* CollectionViewDataSource.swift in Sources */,
 				9274A3F81F3520B900FAADF0 /* TeamSummaryTableViewController.swift in Sources */,
 				92FE68BB20D8A1E8004A1481 /* MyTBASignOutOperation.swift in Sources */,

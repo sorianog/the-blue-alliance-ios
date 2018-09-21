@@ -139,10 +139,11 @@ class MyTBAViewController: ContainerViewController, GIDSignInUIDelegate {
     }
 
     private func removeMyTBAData() {
-        persistentContainer.deleteAllObjects(entityName: Favorite.entityName)
-        persistentContainer.deleteAllObjects(entityName: Subscription.entityName)
+        persistentContainer.viewContext.deleteAllObjectsForEntity(entity: Favorite.entity())
+        persistentContainer.viewContext.deleteAllObjectsForEntity(entity: Subscription.entity())
 
         // Clear notifications
+        persistentContainer.viewContext.saveContext()
     }
 
     private func pushMyTBAObject(_ myTBAObject: MyTBAEntity) {
