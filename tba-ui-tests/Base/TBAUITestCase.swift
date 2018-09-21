@@ -9,6 +9,9 @@ class TBAUITestCase: XCTestCase {
 
         app = XCUIApplication()
         app.launch()
+
+        // Wait for our main app UI to setup
+        XCTAssert(XCUIApplication().tabBars.firstMatch.waitForExistence(timeout: 30))
     }
 
 }

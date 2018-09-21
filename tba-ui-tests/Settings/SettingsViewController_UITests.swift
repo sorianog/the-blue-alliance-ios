@@ -5,14 +5,16 @@ class SettingsViewController_UITestCase: TBAUITestCase {
     override func setUp() {
         super.setUp()
 
-        XCUIApplication().tabBars.buttons["Settings"].tap()
+        let settingsButton = XCUIApplication().tabBars.buttons["Settings"]
+        XCTAssert(settingsButton.waitForExistence(timeout: 10))
+        settingsButton.tap()
     }
 
     func test_openWebiste() {
         let tba = XCUIApplication(bundleIdentifier: "com.the-blue-alliance.the-blue-alliance")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
 
-        app.tables/*@START_MENU_TOKEN@*/.cells.staticTexts["The Blue Alliance Website"]/*[[".cells.staticTexts[\"The Blue Alliance Website\"]",".staticTexts[\"The Blue Alliance Website\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/.tap()
+        app.tables.cells.staticTexts["The Blue Alliance Website"].tap()
         _ = safari.wait(for: .runningForeground, timeout: 10)
         tba.activate()
         _ = tba.wait(for: .runningForeground, timeout: 10)
@@ -22,7 +24,7 @@ class SettingsViewController_UITestCase: TBAUITestCase {
         let tba = XCUIApplication(bundleIdentifier: "com.the-blue-alliance.the-blue-alliance")
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
 
-        app.tables/*@START_MENU_TOKEN@*/.cells.staticTexts["The Blue Alliance for iOS is open source"]/*[[".cells.staticTexts[\"The Blue Alliance for iOS is open source\"]",".staticTexts[\"The Blue Alliance for iOS is open source\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/.tap()
+        app.tables.cells.staticTexts["The Blue Alliance for iOS is open source"].tap()
         _ = safari.wait(for: .runningForeground, timeout: 10)
         tba.activate()
         _ = tba.wait(for: .runningForeground, timeout: 10)
@@ -30,7 +32,7 @@ class SettingsViewController_UITestCase: TBAUITestCase {
 
     func test_deleteNetworkCache() {
         let tablesQuery = XCUIApplication().tables
-        let deleteNetworkCacheStaticText = tablesQuery/*@START_MENU_TOKEN@*/.cells.staticTexts["Delete network cache"]/*[[".cells.staticTexts[\"Delete network cache\"]",".staticTexts[\"Delete network cache\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/
+        let deleteNetworkCacheStaticText = tablesQuery.cells.staticTexts["Delete network cache"]
         deleteNetworkCacheStaticText.tap()
 
         let deleteNetworkCacheAlert = XCUIApplication().alerts["Delete Network Cache"]
@@ -44,7 +46,7 @@ class SettingsViewController_UITestCase: TBAUITestCase {
 
     func test_deleteAppData() {
         let tablesQuery = XCUIApplication().tables
-        let deleteAppDataStaticText = tablesQuery/*@START_MENU_TOKEN@*/.cells.staticTexts["Delete app data"]/*[[".cells.staticTexts[\"Delete app data\"]",".staticTexts[\"Delete app data\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/
+        let deleteAppDataStaticText = tablesQuery.cells.staticTexts["Delete app data"]
         deleteAppDataStaticText.tap()
 
         let deleteAppDataAlert = XCUIApplication().alerts["Delete App Data"]
